@@ -1,5 +1,5 @@
-pub mod characters;
 pub mod campaign;
+pub mod characters;
 
 use rusqlite::Connection;
 use std::sync::Mutex;
@@ -17,7 +17,6 @@ pub struct Database {
     connection: Mutex<Connection>,
 }
 
-
 impl Database {
     pub fn open(path: impl AsRef<std::path::Path>) -> Result<Self, DatabaseError> {
         let database = Self {
@@ -30,10 +29,7 @@ impl Database {
     }
 
     fn create_tables(&self) -> Result<(), DatabaseError> {
-        let db = self
-            .connection
-            .lock()
-            .map_err(|_| DatabaseError::Lock)?;
+        let db = self.connection.lock().map_err(|_| DatabaseError::Lock)?;
 
         db.execute_batch(
             "
@@ -70,7 +66,6 @@ impl Database {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -78,12 +73,10 @@ mod tests {
     #[test]
     fn create_database_tables() -> Result<(), DatabaseError> {
         let db = Database::open(":memory:")?;
-        let connection = db.connection
-            .lock()
-            .map_err(|_| DatabaseError::Lock)?;
+        let connection = db.connection.lock().map_err(|_| DatabaseError::Lock)?;
 
-
-        let count: i64 = connection.query_row("
+        let count: i64 = connection.query_row(
+            "
             SELECT COUNT(*)
             FROM sqlite_master
             WHERE type= 'table'
@@ -91,11 +84,12 @@ mod tests {
                 'campaigns',
                 'characters',
                 'character_conditions'
-            )",[],|row| row.get(0))?;
+            )",
+            [],
+            |row| row.get(0),
+        )?;
 
-
-        assert_eq!(count,3);
+        assert_eq!(count, 3);
         Ok(())
     }
-
 }

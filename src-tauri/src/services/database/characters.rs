@@ -6,4 +6,3 @@ pub struct Characters {
     pub armor_class: i64,
     pub notes: String,
 }
-
