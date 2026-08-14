@@ -1,3 +1,6 @@
+pub mod characters;
+pub mod campaign;
+
 use rusqlite::Connection;
 use std::sync::Mutex;
 use thiserror::Error;
@@ -75,12 +78,12 @@ mod tests {
     #[test]
     fn create_database_tables() -> Result<(), DatabaseError> {
         let db = Database::open(":memory:")?;
-        let conn = db.connection
+        let connection = db.connection
             .lock()
             .map_err(|_| DatabaseError::Lock)?;
 
 
-        let count: i64 = conn.query_row("
+        let count: i64 = connection.query_row("
             SELECT COUNT(*)
             FROM sqlite_master
             WHERE type= 'table'
