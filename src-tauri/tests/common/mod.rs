@@ -1,6 +1,8 @@
+use serde_json::json;
 use songbird_lib::services::database::{
     campaign::{Campaign, NewCampaign},
     characters::NewCharacter,
+    combat::{NewCombatParticipant, NewCombatSession},
     sounds::NewSound,
     Database, DatabaseError,
 };
@@ -33,6 +35,34 @@ pub fn new_character(
         max_health,
         armor_class,
         notes: notes.to_string(),
+    }
+}
+
+pub fn new_combat_session(campaign_id: i64) -> NewCombatSession {
+    NewCombatSession {
+        campaign_id,
+        name: "Goblin Ambush".to_string(),
+        status: "planned".to_string(),
+        current_round: 0,
+        notes: "Roadside encounter".to_string(),
+        details: json!({"ruleset": "dnd5e"}),
+    }
+}
+
+pub fn new_combat_participant(
+    combat_session_id: i64,
+    character_id: Option<i64>,
+) -> NewCombatParticipant {
+    NewCombatParticipant {
+        combat_session_id,
+        character_id,
+        display_name: "Goblin 1".to_string(),
+        initiative: Some(14),
+        turn_order: 1,
+        current_health: Some(7),
+        temporary_health: 0,
+        defeated: false,
+        details: json!({"source": "template"}),
     }
 }
 

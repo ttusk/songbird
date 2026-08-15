@@ -42,7 +42,16 @@ pub fn run() {
             commands::sounds::add_sound,
             commands::sounds::find_sound,
             commands::sounds::list_sounds,
-            commands::sounds::delete_sound,
+            commands::combat::add_combat_session,
+            commands::combat::find_combat_session,
+            commands::combat::list_combat_sessions,
+            commands::combat::update_combat_session,
+            commands::combat::delete_combat_session,
+            commands::combat::add_combat_participant,
+            commands::combat::find_combat_participant,
+            commands::combat::list_combat_participants,
+            commands::combat::update_combat_participant,
+            commands::combat::delete_combat_participant,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

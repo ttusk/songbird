@@ -1,5 +1,6 @@
 pub mod campaign;
 pub mod characters;
+pub mod combat;
 pub mod sounds;
 
 use rusqlite::Connection;
@@ -10,6 +11,8 @@ use thiserror::Error;
 pub enum DatabaseError {
     #[error("SQLite error: {0}")]
     Sqlite(#[from] rusqlite::Error),
+    #[error("JSON error: {0}")]
+    Json(#[from] serde_json::Error),
     #[error("mutex was poisoned")]
     Lock,
 }
@@ -67,6 +70,31 @@ impl Database {
                 file_path TEXT NOT NULL,
                 category TEXT NOT NULL DEFAULT '',
                 volume REAL NOT NULL DEFAULT 1.0
+            );
+            CREATE TABLE IF NOT EXISTS combat_sessions (
+                id INTEGER PRIMARY KEY,
+                campaign_id INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'planned',
+                current_round INTEGER NOT NULL DEFAULT 0,
+                notes TEXT NOT NULL DEFAULT '',
+                details TEXT NOT NULL DEFAULT '{}',
+                FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+            );
+
+            CREATE TABLE IF NOT EXISTS combat_participants (
+                id INTEGER PRIMARY KEY,
+                combat_session_id INTEGER NOT NULL,
+                character_id INTEGER,
+                display_name TEXT NOT NULL,
+                initiative INTEGER,
+                turn_order INTEGER NOT NULL DEFAULT 0,
+                current_health INTEGER,
+                temporary_health INTEGER NOT NULL DEFAULT 0,
+                defeated INTEGER NOT NULL DEFAULT 0,
+                details TEXT NOT NULL DEFAULT '{}',
+                FOREIGN KEY (combat_session_id) REFERENCES combat_sessions(id) ON DELETE CASCADE,
+                FOREIGN KEY (character_id) REFERENCES characters(id)
             );
             ",
         )?;
