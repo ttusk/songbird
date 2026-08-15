@@ -39,6 +39,10 @@ pub fn run() {
             commands::characters::delete_character,
             commands::characters::add_character,
             commands::characters::list_characters,
+            commands::sounds::add_sound,
+            commands::sounds::find_sound,
+            commands::sounds::list_sounds,
+            commands::sounds::delete_sound,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
