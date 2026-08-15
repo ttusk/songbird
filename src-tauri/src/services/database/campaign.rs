@@ -188,4 +188,61 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn find_campaign_returns_campaign() -> Result<(), DatabaseError> {
+        let db = Database::open(":memory:")?;
+        let expected = db.add_campaign(NewCampaign {
+            name: "Test Campaign".to_string(),
+            notes: Some("Test notes".to_string()),
+        })?;
+        let id = expected.id;
+
+        let result = db.find_campaign(id)?;
+
+        assert_eq!(Some(expected), result);
+
+        Ok(())
+    }
+
+    #[test]
+    fn find_campaign_returns_none_for_missing_id() -> Result<(), DatabaseError> {
+        let db = Database::open(":memory:")?;
+
+        let result = db.find_campaign(999)?;
+
+        assert_eq!(None, result);
+
+        Ok(())
+    }
+
+    #[test]
+    fn list_campaigns_returns_campaigns_by_name() -> Result<(), DatabaseError> {
+        let db = Database::open(":memory:")?;
+        let second = db.add_campaign(NewCampaign {
+            name: "B Campaign".to_string(),
+            notes: None,
+        })?;
+        let first = db.add_campaign(NewCampaign {
+            name: "A Campaign".to_string(),
+            notes: None,
+        })?;
+
+        let result = db.list_campaigns()?;
+
+        assert_eq!(vec![first, second], result);
+
+        Ok(())
+    }
+
+    #[test]
+    fn find_campaign_details_returns_none_for_missing_id() -> Result<(), DatabaseError> {
+        let db = Database::open(":memory:")?;
+
+        let result = db.find_campaign_details(999)?;
+
+        assert_eq!(None, result);
+
+        Ok(())
+    }
 }
