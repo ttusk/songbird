@@ -1,5 +1,5 @@
 use crate::services::database::{
-    campaign::{Campaign, CampaignDetails, NewCampaign},
+    campaign::{Campaign, CampaignDetails, NewCampaign, UpdateCampaign},
     Database,
 };
 use tauri::State;
@@ -11,6 +11,24 @@ pub fn add_campaign(
 ) -> Result<Campaign, String> {
     database
         .add_campaign(campaign)
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+pub fn update_campaign(
+    database: State<'_, Database>,
+    id: i64,
+    campaign: UpdateCampaign,
+) -> Result<Option<Campaign>, String> {
+    database
+        .update_campaign(id, campaign)
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+pub fn delete_campaign(database: State<'_, Database>, id: i64) -> Result<bool, String> {
+    database
+        .delete_campaign(id)
         .map_err(|error| error.to_string())
 }
 

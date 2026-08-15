@@ -32,6 +32,11 @@ pub fn run() {
             commands::campaigns::find_campaign,
             commands::campaigns::list_campaigns,
             commands::campaigns::find_campaign_details,
+            commands::campaigns::update_campaign,
+            commands::campaigns::delete_campaign,
+            commands::characters::find_character,
+            commands::characters::update_character,
+            commands::characters::delete_character,
             commands::characters::add_character,
             commands::characters::list_characters,
         ])

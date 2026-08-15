@@ -1,5 +1,5 @@
 use crate::services::database::{
-    characters::{Character, NewCharacter},
+    characters::{Character, NewCharacter, UpdateCharacter},
     Database,
 };
 use tauri::State;
@@ -11,6 +11,31 @@ pub fn add_character(
 ) -> Result<Character, String> {
     database
         .add_character(character)
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+pub fn find_character(database: State<'_, Database>, id: i64) -> Result<Option<Character>, String> {
+    database
+        .find_character(id)
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+pub fn update_character(
+    database: State<'_, Database>,
+    id: i64,
+    character: UpdateCharacter,
+) -> Result<Option<Character>, String> {
+    database
+        .update_character(id, character)
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+pub fn delete_character(database: State<'_, Database>, id: i64) -> Result<bool, String> {
+    database
+        .delete_character(id)
         .map_err(|error| error.to_string())
 }
 

@@ -14,6 +14,11 @@ pub struct NewCampaign {
     pub name: String,
     pub notes: Option<String>,
 }
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct UpdateCampaign {
+    pub name: String,
+    pub notes: String,
+}
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CampaignDetails {
@@ -50,6 +55,34 @@ impl Database {
         let id = connection.last_insert_rowid();
 
         Ok(Campaign { id, name, notes })
+    }
+
+    pub fn update_campaign(
+        &self,
+        id: i64,
+        campaign: UpdateCampaign,
+    ) -> Result<Option<Campaign>, DatabaseError> {
+        let connection = self.connection.lock().map_err(|_| DatabaseError::Lock)?;
+
+        let updated = connection.execute(
+            "UPDATE campaigns SET name = ?1, notes = ?2 WHERE id = ?3",
+            rusqlite::params![campaign.name, campaign.notes, id],
+        )?;
+
+        drop(connection);
+
+        if updated == 0 {
+            return Ok(None);
+        }
+
+        self.find_campaign(id)
+    }
+
+    pub fn delete_campaign(&self, id: i64) -> Result<bool, DatabaseError> {
+        let connection = self.connection.lock().map_err(|_| DatabaseError::Lock)?;
+        let deleted = connection.execute("DELETE FROM campaigns WHERE id = ?1", [id])?;
+
+        Ok(deleted == 1)
     }
 
     pub fn find_campaign(&self, id: i64) -> Result<Option<Campaign>, DatabaseError> {

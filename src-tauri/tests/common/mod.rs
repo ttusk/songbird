@@ -1,6 +1,7 @@
 use songbird_lib::services::database::{
     campaign::{Campaign, NewCampaign},
     characters::NewCharacter,
+    sounds::NewSound,
     Database, DatabaseError,
 };
 
@@ -32,5 +33,14 @@ pub fn new_character(
         max_health,
         armor_class,
         notes: notes.to_string(),
+    }
+}
+
+pub fn new_sound(title: &str, file_path: &str, category: &str, volume: f64) -> NewSound {
+    NewSound {
+        title: title.to_string(),
+        file_path: file_path.to_string(),
+        category: category.to_string(),
+        volume,
     }
 }

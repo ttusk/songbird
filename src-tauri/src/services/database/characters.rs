@@ -1,4 +1,5 @@
 use crate::services::database::{Database, DatabaseError};
+use rusqlite::OptionalExtension;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -15,6 +16,15 @@ pub struct Character {
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NewCharacter {
     pub campaign_id: i64,
+    pub name: String,
+    pub kind: String,
+    pub current_health: i64,
+    pub max_health: i64,
+    pub armor_class: i64,
+    pub notes: String,
+}
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct UpdateCharacter {
     pub name: String,
     pub kind: String,
     pub current_health: i64,
@@ -104,5 +114,68 @@ impl Database {
             armor_class,
             notes,
         })
+    }
+
+    pub fn find_character(&self, id: i64) -> Result<Option<Character>, DatabaseError> {
+        let connection = self.connection.lock().map_err(|_| DatabaseError::Lock)?;
+
+        let character = connection
+            .query_row(
+                "
+                SELECT id, campaign_id, name, kind, current_hp, max_hp, armor_class, notes
+                FROM characters
+                WHERE id = ?1
+                ",
+                [id],
+                Character::from_row,
+            )
+            .optional()?;
+
+        Ok(character)
+    }
+
+    pub fn update_character(
+        &self,
+        id: i64,
+        character: UpdateCharacter,
+    ) -> Result<Option<Character>, DatabaseError> {
+        let connection = self.connection.lock().map_err(|_| DatabaseError::Lock)?;
+
+        let updated = connection.execute(
+            "
+            UPDATE characters
+            SET name = ?1,
+                kind = ?2,
+                current_hp = ?3,
+                max_hp = ?4,
+                armor_class = ?5,
+                notes = ?6
+            WHERE id = ?7
+            ",
+            rusqlite::params![
+                &character.name,
+                &character.kind,
+                character.current_health,
+                character.max_health,
+                character.armor_class,
+                &character.notes,
+                id,
+            ],
+        )?;
+
+        drop(connection);
+
+        if updated == 0 {
+            return Ok(None);
+        }
+
+        self.find_character(id)
+    }
+
+    pub fn delete_character(&self, id: i64) -> Result<bool, DatabaseError> {
+        let connection = self.connection.lock().map_err(|_| DatabaseError::Lock)?;
+        let deleted = connection.execute("DELETE FROM characters WHERE id = ?1", [id])?;
+
+        Ok(deleted == 1)
     }
 }

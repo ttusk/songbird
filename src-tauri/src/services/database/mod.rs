@@ -1,5 +1,6 @@
 pub mod campaign;
 pub mod characters;
+pub mod sounds;
 
 use rusqlite::Connection;
 use std::sync::Mutex;
@@ -58,6 +59,14 @@ impl Database {
                 condition TEXT NOT NULL,
                 PRIMARY KEY (character_id, condition),
                 FOREIGN KEY (character_id) REFERENCES characters(id)
+            );
+
+            CREATE TABLE IF NOT EXISTS sounds (
+                id INTEGER PRIMARY KEY,
+                title TEXT NOT NULL,
+                file_path TEXT NOT NULL,
+                category TEXT NOT NULL DEFAULT '',
+                volume REAL NOT NULL DEFAULT 1.0
             );
             ",
         )?;

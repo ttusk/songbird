@@ -2,7 +2,7 @@ mod common;
 
 use common::{create_campaign, new_character, open_database};
 use songbird_lib::services::database::{
-    campaign::{Campaign, CampaignDetails, NewCampaign},
+    campaign::{Campaign, CampaignDetails, NewCampaign, UpdateCampaign},
     DatabaseError,
 };
 
@@ -109,6 +109,60 @@ fn find_campaign_details_returns_none_for_missing_id() -> Result<(), DatabaseErr
     let result = database.find_campaign_details(999)?;
 
     assert_eq!(None, result);
+
+    Ok(())
+}
+
+#[test]
+fn update_campaign_returns_updated_campaign() -> Result<(), DatabaseError> {
+    let database = open_database()?;
+    let campaign = create_campaign(&database)?;
+
+    let result = database.update_campaign(
+        campaign.id,
+        UpdateCampaign {
+            name: "Updated Campaign".to_string(),
+            notes: "Updated notes".to_string(),
+        },
+    )?;
+
+    assert_eq!(
+        Some(Campaign {
+            id: campaign.id,
+            name: "Updated Campaign".to_string(),
+            notes: "Updated notes".to_string(),
+        }),
+        result,
+    );
+
+    Ok(())
+}
+
+#[test]
+fn update_campaign_returns_none_for_missing_id() -> Result<(), DatabaseError> {
+    let database = open_database()?;
+
+    let result = database.update_campaign(
+        999,
+        UpdateCampaign {
+            name: "Updated Campaign".to_string(),
+            notes: "Updated notes".to_string(),
+        },
+    )?;
+
+    assert_eq!(None, result);
+
+    Ok(())
+}
+
+#[test]
+fn delete_campaign_removes_campaign() -> Result<(), DatabaseError> {
+    let database = open_database()?;
+    let campaign = create_campaign(&database)?;
+
+    assert!(database.delete_campaign(campaign.id)?);
+    assert_eq!(None, database.find_campaign(campaign.id)?);
+    assert!(!database.delete_campaign(campaign.id)?);
 
     Ok(())
 }
