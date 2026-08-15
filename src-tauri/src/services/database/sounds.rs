@@ -19,6 +19,14 @@ pub struct NewSound {
     pub volume: f64,
 }
 
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct UpdateSound {
+    pub title: String,
+    pub file_path: String,
+    pub category: String,
+    pub volume: f64,
+}
+
 impl Sound {
     fn from_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<Self> {
         Ok(Self {
@@ -99,5 +107,35 @@ impl Database {
         let deleted = connection.execute("DELETE FROM sounds WHERE id = ?1", [id])?;
 
         Ok(deleted == 1)
+    }
+    pub fn update_sound(
+        &self,
+        id: i64,
+        sound: UpdateSound,
+    ) -> Result<Option<Sound>, DatabaseError> {
+        let connection = self.connection.lock().map_err(|_| DatabaseError::Lock)?;
+
+        let updated = connection.execute(
+            "
+            UPDATE sounds
+            SET title = ?1, file_path = ?2, category = ?3, volume = ?4
+            WHERE id = ?5
+            ",
+            rusqlite::params![
+                &sound.title,
+                &sound.file_path,
+                &sound.category,
+                sound.volume,
+                id,
+            ],
+        )?;
+
+        drop(connection);
+
+        if updated == 0 {
+            return Ok(None);
+        }
+
+        self.find_sound(id)
     }
 }

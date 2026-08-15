@@ -1,6 +1,7 @@
 pub mod campaign;
 pub mod characters;
 pub mod combat;
+pub mod soundboard;
 pub mod sounds;
 
 use rusqlite::Connection;
@@ -70,6 +71,23 @@ impl Database {
                 file_path TEXT NOT NULL,
                 category TEXT NOT NULL DEFAULT '',
                 volume REAL NOT NULL DEFAULT 1.0
+            );
+            CREATE TABLE IF NOT EXISTS soundboards (
+                id INTEGER PRIMARY KEY,
+                campaign_id INTEGER,
+                name TEXT NOT NULL,
+                notes TEXT NOT NULL DEFAULT '',
+                FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+            );
+
+            CREATE TABLE IF NOT EXISTS soundboard_sounds (
+                soundboard_id INTEGER NOT NULL,
+                sound_id INTEGER NOT NULL,
+                position INTEGER NOT NULL DEFAULT 0,
+                PRIMARY KEY (soundboard_id, sound_id),
+                UNIQUE (soundboard_id, position),
+                FOREIGN KEY (soundboard_id) REFERENCES soundboards(id) ON DELETE CASCADE,
+                FOREIGN KEY (sound_id) REFERENCES sounds(id) ON DELETE CASCADE
             );
             CREATE TABLE IF NOT EXISTS combat_sessions (
                 id INTEGER PRIMARY KEY,
