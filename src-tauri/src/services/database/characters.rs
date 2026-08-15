@@ -1,6 +1,7 @@
 use crate::services::database::{Database, DatabaseError};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Character {
     pub id: i64,
     pub campaign_id: i64,
@@ -11,7 +12,7 @@ pub struct Character {
     pub armor_class: i64,
     pub notes: String,
 }
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NewCharacter {
     pub campaign_id: i64,
     pub name: String,

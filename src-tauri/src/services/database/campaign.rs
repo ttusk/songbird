@@ -1,20 +1,21 @@
 use super::characters::Character;
 use crate::services::database::{Database, DatabaseError};
 use rusqlite::OptionalExtension;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Campaign {
     pub id: i64,
     pub name: String,
     pub notes: String,
 }
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NewCampaign {
     pub name: String,
     pub notes: Option<String>,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CampaignDetails {
     pub campaign: Campaign,
     pub characters: Vec<Character>,
