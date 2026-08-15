@@ -65,31 +65,3 @@ impl Database {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn create_database_tables() -> Result<(), DatabaseError> {
-        let db = Database::open(":memory:")?;
-        let connection = db.connection.lock().map_err(|_| DatabaseError::Lock)?;
-
-        let count: i64 = connection.query_row(
-            "
-            SELECT COUNT(*)
-            FROM sqlite_master
-            WHERE type= 'table'
-            AND name IN (
-                'campaigns',
-                'characters',
-                'character_conditions'
-            )",
-            [],
-            |row| row.get(0),
-        )?;
-
-        assert_eq!(count, 3);
-        Ok(())
-    }
-}

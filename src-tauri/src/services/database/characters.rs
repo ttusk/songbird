@@ -38,7 +38,7 @@ impl Character {
 }
 
 impl Database {
-    pub(crate) fn list_characters(&self, id: i64) -> Result<Vec<Character>, DatabaseError> {
+    pub fn list_characters(&self, id: i64) -> Result<Vec<Character>, DatabaseError> {
         let connection = self.connection.lock().map_err(|_| DatabaseError::Lock)?;
 
         let mut statement = connection.prepare(
@@ -54,10 +54,7 @@ impl Database {
         Ok(characters)
     }
 
-    pub(crate) fn add_character(
-        &self,
-        new_character: NewCharacter,
-    ) -> Result<Character, DatabaseError> {
+    pub fn add_character(&self, new_character: NewCharacter) -> Result<Character, DatabaseError> {
         let connection = self.connection.lock().map_err(|_| DatabaseError::Lock)?;
 
         let NewCharacter {
@@ -106,82 +103,5 @@ impl Database {
             armor_class,
             notes,
         })
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{Character, NewCharacter};
-    use crate::services::database::{campaign::NewCampaign, Database, DatabaseError};
-
-    #[test]
-    fn add_new_character_returns_character() -> Result<(), DatabaseError> {
-        let db = Database::open(":memory:")?;
-        let campaign = db.add_campaign(NewCampaign {
-            name: "Test Campaign".to_string(),
-            notes: None,
-        })?;
-
-        let result = db.add_character(NewCharacter {
-            campaign_id: campaign.id,
-            name: "Goblin".to_string(),
-            kind: "npc".to_string(),
-            current_health: 7,
-            max_health: 7,
-            armor_class: 15,
-            notes: "Guards the entrance".to_string(),
-        })?;
-
-        let expected = Character {
-            id: 1,
-            campaign_id: campaign.id,
-            name: "Goblin".to_string(),
-            kind: "npc".to_string(),
-            current_health: 7,
-            max_health: 7,
-            armor_class: 15,
-            notes: "Guards the entrance".to_string(),
-        };
-
-        assert_eq!(expected, result);
-
-        Ok(())
-    }
-
-    #[test]
-    fn list_characters_from_campaign_returns_characters() -> Result<(), DatabaseError> {
-        let db = Database::open(":memory:")?;
-        let campaign = db.add_campaign(NewCampaign {
-            name: "Test Campaign".to_string(),
-            notes: None,
-        })?;
-
-        let first = NewCharacter {
-            campaign_id: campaign.id,
-            name: "Goblin".to_string(),
-            kind: "npc".to_string(),
-            current_health: 7,
-            max_health: 7,
-            armor_class: 15,
-            notes: "Guards the entrance".to_string(),
-        };
-
-        let second = NewCharacter {
-            campaign_id: campaign.id,
-            name: "Archer".to_string(),
-            kind: "npc".to_string(),
-            current_health: 10,
-            max_health: 10,
-            armor_class: 13,
-            notes: "Keeps distance".to_string(),
-        };
-
-        let expected = vec![db.add_character(first)?, db.add_character(second)?];
-
-        let result = db.list_characters(campaign.id)?;
-
-        assert_eq!(expected, result);
-
-        Ok(())
     }
 }
