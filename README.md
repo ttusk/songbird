@@ -1,4 +1,4 @@
-# Tauri + Solid + Typescript
+# Tauri + React + TypeScript
 
-This template should help get you started developing with Tauri, Solid and Typescript in Vite.
+This project combines Tauri 2, React, TypeScript, and Rust.
 

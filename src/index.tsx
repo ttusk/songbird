@@ -1,5 +1,16 @@
-/* @refresh reload */
-import { render } from "solid-js/web";
+import { StrictMode } from "react";
+import "@fontsource-variable/geist";
+import { createRoot } from "react-dom/client";
 import App from "./App";
 
-render(() => <App />, document.getElementById("root") as HTMLElement);
+const root = document.getElementById("root");
+
+if (root === null) {
+  throw new Error("Root element was not found");
+}
+
+createRoot(root).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
